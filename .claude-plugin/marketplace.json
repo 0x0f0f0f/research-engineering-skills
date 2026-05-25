@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "research-engineering-skills",
-      "description": "Research Engineering Skills for Agents: a curated set of six skills for doing high-quality engineering on research-grade codebases.",
+      "description": "Research Engineering Skills for Agents: a curated set of six skills for doing high-quality engineering on research-grade codebases, plus the bundled marimo-team/skills (vendored, Apache-2.0).",
       "source": "./",
       "strict": false,
       "skills": [
@@ -20,7 +20,17 @@
         "./skills/read-arxiv-paper",
         "./skills/maintain-memory-md",
         "./skills/pr-plan-tracking",
-        "./skills/marimo-notebook-tests"
+        "./skills/marimo-notebook-tests",
+        "./vendor/marimo-team-skills/skills/marimo-notebook",
+        "./vendor/marimo-team-skills/skills/implement-paper",
+        "./vendor/marimo-team-skills/skills/implement-paper-auto",
+        "./vendor/marimo-team-skills/skills/auto-paper-demo",
+        "./vendor/marimo-team-skills/skills/jupyter-to-marimo",
+        "./vendor/marimo-team-skills/skills/streamlit-to-marimo",
+        "./vendor/marimo-team-skills/skills/anywidget",
+        "./vendor/marimo-team-skills/skills/wasm-compatibility",
+        "./vendor/marimo-team-skills/skills/add-molab-badge",
+        "./vendor/marimo-team-skills/skills/marimo-batch"
       ]
     }
   ]

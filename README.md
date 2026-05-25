@@ -19,6 +19,28 @@ agent that understands the Skills convention — Claude Code, Codex, Cursor, and
 | 📋 [`pr-plan-tracking`](skills/pr-plan-tracking/) | Maintain lightweight per-PR plans, progress logs, and findings under `plans/`. Start a plan, log progress, record a finding, complete a PR. |
 | 🧪 [`marimo-notebook-tests`](skills/marimo-notebook-tests/) | Wire up a Python project so files are simultaneously marimo interactive notebooks and pytest test modules — executable docs that stay green in CI. |
 
+## 🟢 Bundled marimo skills
+
+This plugin **vendors [`marimo-team/skills`](https://github.com/marimo-team/skills)**
+as a git submodule under [`vendor/marimo-team-skills/`](vendor/marimo-team-skills/)
+and lists each of its skills in `marketplace.json`, so installing this plugin
+also gives you marimo's own skills — `marimo-notebook` (the canonical
+notebook-authoring rules that `marimo-notebook-tests` defers to),
+`implement-paper`, `implement-paper-auto`, `auto-paper-demo`, `jupyter-to-marimo`,
+`streamlit-to-marimo`, `anywidget`, `wasm-compatibility`, `add-molab-badge`,
+and `marimo-batch`.
+
+The submodule is **pinned to a specific upstream commit**; re-sync with
+`git submodule update --remote vendor/marimo-team-skills` and commit the bump.
+These skills are © the marimo team under **Apache-2.0** — see
+[`vendor/marimo-team-skills/LICENSE`](vendor/marimo-team-skills/LICENSE); this
+repo's own skills remain MIT.
+
+> **Cloning/installing:** because they're a submodule, you must initialize it.
+> Clone with `git clone --recurse-submodules …`, or run
+> `git submodule update --init --recursive` in an existing checkout, otherwise
+> the `vendor/` paths will be empty.
+
 ## 🔁 How to use them — the loop
 
 The six skills aren't a grab-bag; they chain into one workflow. A typical run from
@@ -105,8 +127,13 @@ marketplace out of the box. From inside Claude Code:
 ```
 
 The first command registers the marketplace; the second installs the
-`research-engineering-skills` plugin (all six skills). Run `/plugin` to manage
-installed plugins.
+`research-engineering-skills` plugin (the six authored skills plus the bundled
+marimo skills). Run `/plugin` to manage installed plugins.
+
+> The bundled marimo skills live in a git submodule. If your installer does not
+> fetch submodules, the `vendor/` paths resolve empty — vendor the repo with
+> `git clone --recurse-submodules` (see [Option C](#option-c--manual--git-submodule))
+> so the marimo skills come along.
 
 ### Option B — `npx skills` (Vercel Labs)
 
@@ -164,6 +191,9 @@ research-engineering-skills/
 │   ├── maintain-memory-md/SKILL.md
 │   ├── pr-plan-tracking/SKILL.md
 │   └── marimo-notebook-tests/SKILL.md
+├── vendor/
+│   └── marimo-team-skills/         # git submodule → marimo-team/skills (Apache-2.0)
+│       └── skills/                 # marimo-notebook, implement-paper, jupyter-to-marimo, …
 ├── README.md
 └── LICENSE
 ```
