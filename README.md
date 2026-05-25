@@ -1,4 +1,4 @@
-# Research Engineering Skills for Agents
+# 🔬 Research Engineering Skills for Agents
 
 A curated set of six [Agent Skills](https://code.claude.com/docs/en/skills) for
 doing **high-quality engineering on research-grade codebases** — the kind of work
@@ -8,21 +8,91 @@ navigable, and project knowledge is written down so it survives across sessions.
 Each skill is a self-contained `SKILL.md` (plus supporting files) usable by any
 agent that understands the Skills convention — Claude Code, Codex, Cursor, and others.
 
-## Skills
+## ✨ The skills
 
 | Skill | What it does |
 | ----- | ------------ |
-| [`improve-codebase-architecture`](skills/improve-codebase-architecture/) | Surface architectural friction and propose *deepening* refactors (shallow → deep modules), presented as a visual before/after HTML report, then a grilling loop to design the chosen refactor. |
-| [`consult-references`](skills/consult-references/) | Before non-trivial changes, read the actual paper or vendored repo in `references/` instead of guessing. Grounds algorithms and formulas in primary sources. |
-| [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/` using the highest-fidelity format available (HTML → ar5iv → LaTeX → PDF) and write a structured `NOTES.md`. |
-| [`maintain-memory-md`](skills/maintain-memory-md/) | Keep per-directory `CLAUDE.md`/`AGENTS.md` files honest and in sync with the code, plus a root Progress log. Bootstraps them in projects that have none. |
-| [`pr-plan-tracking`](skills/pr-plan-tracking/) | Maintain lightweight per-PR plans, progress logs, and findings under `plans/`. Start a plan, log progress, record a finding, complete a PR. |
-| [`marimo-notebook-tests`](skills/marimo-notebook-tests/) | Wire up a Python project so files are simultaneously marimo interactive notebooks and pytest test modules — executable docs that stay green in CI. |
+| 🏛️ [`improve-codebase-architecture`](skills/improve-codebase-architecture/) | Surface architectural friction and propose *deepening* refactors (shallow → deep modules), presented as a visual before/after HTML report, then a grilling loop to design the chosen refactor. |
+| 📚 [`consult-references`](skills/consult-references/) | Before non-trivial changes, read the actual paper or vendored repo in `references/` instead of guessing. Grounds algorithms and formulas in primary sources. |
+| 📥 [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/` using the highest-fidelity format available (HTML → ar5iv → LaTeX → PDF) and write a structured `NOTES.md`. |
+| 🧠 [`maintain-memory-md`](skills/maintain-memory-md/) | Keep per-directory `CLAUDE.md`/`AGENTS.md` files honest and in sync with the code, plus a root Progress log. Bootstraps them in projects that have none. |
+| 📋 [`pr-plan-tracking`](skills/pr-plan-tracking/) | Maintain lightweight per-PR plans, progress logs, and findings under `plans/`. Start a plan, log progress, record a finding, complete a PR. |
+| 🧪 [`marimo-notebook-tests`](skills/marimo-notebook-tests/) | Wire up a Python project so files are simultaneously marimo interactive notebooks and pytest test modules — executable docs that stay green in CI. |
 
-Together they form a loop: **read the literature → ground the code in it → keep the
-architecture deep → record what you learned → track it on the PR.**
+## 🔁 How to use them — the loop
 
-## Install
+The six skills aren't a grab-bag; they chain into one workflow. A typical run from
+"here's a paper" to "the refactor is merged and remembered" looks like this:
+
+1. **📥 Ingest the papers.** Point [`read-arxiv-paper`](skills/read-arxiv-paper/)
+   at an arXiv ID or URL. It fetches the highest-fidelity format available
+   (arXiv HTML → ar5iv → LaTeX → PDF), unpacks it into `references/papers/<slug>/`,
+   and writes a structured `NOTES.md` you'll actually re-read — equations copied
+   *verbatim*, not paraphrased.
+
+2. **📚 Read the papers — and the implementation.** Before any non-trivial change,
+   [`consult-references`](skills/consult-references/) opens the relevant `NOTES.md`
+   (and the `.tex` when an equation has to be exact) plus the vendored repos in
+   `references/repos/`. Algorithms get grounded in the source, not in memory.
+
+3. **💡 Get the insights — and formalize the problem.** With the literature loaded,
+   [`improve-codebase-architecture`](skills/improve-codebase-architecture/) walks the
+   code for *shallow* modules and friction, naming things in the project's own domain
+   vocabulary (`CONTEXT.md`) and a precise architecture glossary
+   (*deep / shallow / seam / leverage*). The **deletion test** separates pass-throughs
+   from modules that earn their keep.
+
+4. **📋 Propose the improvements as a plan.** The architecture skill presents candidate
+   *deepening* refactors as a visual before/after HTML report; pick one, and
+   [`pr-plan-tracking`](skills/pr-plan-tracking/) turns it into a per-PR plan under
+   `plans/` — tasks, open questions, and a progress log.
+
+5. **🚀 Execute the plan.** Implement the refactor, citing the paper slug and the
+   equation right above the code. [`marimo-notebook-tests`](skills/marimo-notebook-tests/)
+   makes the change verifiable: files that are *simultaneously* marimo notebooks and
+   pytest modules, so the docs stay green in CI.
+
+6. **🧠 Record what you learned.** [`maintain-memory-md`](skills/maintain-memory-md/)
+   keeps per-directory `CLAUDE.md`/`AGENTS.md` honest and appends a one-line Progress
+   entry; `pr-plan-tracking` logs the load-bearing findings. The next session — human or
+   agent — gets back up to speed in 20 seconds.
+
+> **A concrete run:** ingest the *Deflated Sharpe Ratio* paper → consult it before
+> touching walk-forward scoring → notice the scoring module is *shallow* (a thin
+> wrapper hiding the real bug in how it's called) → plan a deepening refactor →
+> implement it with the DSR equation quoted verbatim above the function → log the
+> finding so nobody re-derives it three weeks later.
+
+Then the loop closes and starts again: **read the literature → ground the code in it →
+keep the architecture deep → record what you learned → track it on the PR.**
+
+## 🧩 How this compares to general-purpose agent rules
+
+If you've seen Karpathy's [`andrej-karpathy-skills`](https://github.com/multica-ai/andrej-karpathy-skills)
+(the viral CLAUDE.md / skill, 220k+ combined stars), it packages four behavioural
+rules — *think before coding*, *keep it simple*, *make surgical changes*, *drive toward
+a verifiable goal*. It's a short, agent-agnostic **discipline layer** that sharpens how
+an agent behaves on *any* codebase. Great baseline.
+
+These skills work a layer deeper and more specific: they're **workflow skills for
+research-grade codebases**, and they leave behind durable artifacts — paper notes,
+grounded citations, architecture reports, PR plans, memory files. The difference is
+concreteness:
+
+- Where the Karpathy rules say *think before coding*, `consult-references` says **what to
+  read first and where the equation lives**.
+- Where they say *keep it simple*, `improve-codebase-architecture` gives a **vocabulary**
+  (deep / shallow / seam) and a **test** (the deletion test) for what "simple" means
+  *structurally* — and proposes the refactor, not just the principle.
+- Where they say *drive toward a verifiable goal*, `marimo-notebook-tests` and
+  `pr-plan-tracking` make the goal **executable and tracked**.
+
+They compose well: keep the Karpathy rules as your behavioural baseline and add these for
+the *read-the-paper-then-deepen-the-module* loop. If your work is grounded in literature
+and you want the agent to leave behind something the next session can build on, this set
+goes further.
+
+## 📦 Install
 
 ### Option A — Claude Code plugin marketplace
 
@@ -74,7 +144,7 @@ git submodule add https://github.com/0x0f0f0f/research-engineering-skills \
   .agents/research-engineering-skills
 ```
 
-## Repository layout
+## 🗂️ Repository layout
 
 ```
 research-engineering-skills/
@@ -101,6 +171,6 @@ research-engineering-skills/
 The `skills/<name>/SKILL.md` layout is what both registries discover, so a single
 structure serves the Claude marketplace and `npx skills` simultaneously.
 
-## License
+## 📄 License
 
 MIT — see [LICENSE](LICENSE).
