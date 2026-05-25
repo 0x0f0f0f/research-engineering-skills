@@ -1,0 +1,27 @@
+{
+  "name": "research-engineering-skills",
+  "owner": {
+    "name": "0x0f0f0f",
+    "email": ""
+  },
+  "metadata": {
+    "description": "Research Engineering Skills for Agents — high-quality engineering skills for research codebases: architecture deepening, reference-grounded development, arXiv paper ingestion, memory upkeep, PR plan tracking, and notebooks-as-tests.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "research-engineering-skills",
+      "description": "Research Engineering Skills for Agents: a curated set of six skills for doing high-quality engineering on research-grade codebases.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/improve-codebase-architecture",
+        "./skills/consult-references",
+        "./skills/read-arxiv-paper",
+        "./skills/maintain-memory-md",
+        "./skills/pr-plan-tracking",
+        "./skills/marimo-notebook-tests"
+      ]
+    }
+  ]
+}
