@@ -14,16 +14,16 @@ Assumes `marimo` is installed as a dev dependency alongside `pytest`.
 
 This skill owns the *notebook-as-test wiring* — the `test_*` / `@app.cell`
 split below. It does **not** redefine how marimo cells are written. That is
-owned by marimo's official [`marimo-notebook`](https://github.com/marimo-team/skills/tree/main/skills/marimo-notebook)
-skill. Install it alongside this one and **always follow it** when writing the
-cell bodies:
+owned by marimo's official `marimo-notebook` skill, which is **already vendored
+into this plugin** at
+[`vendor/marimo-team-skills/skills/marimo-notebook/`](../../vendor/marimo-team-skills/skills/marimo-notebook/)
+and installed alongside this one. **Do not run `npx skills add marimo-team/skills`
+to reinstall it** — it ships with this plugin; reinstalling would duplicate it.
+Load the bundled `marimo-notebook` skill and **always follow it** when writing
+the cell bodies.
 
-```bash
-npx skills add marimo-team/skills   # provides marimo-notebook, jupyter-to-marimo, et al.
-```
-
-Load `marimo-notebook` and apply its rules verbatim. The load-bearing ones,
-repeated here so they are never skipped:
+Apply its rules verbatim. The load-bearing ones, repeated here so they are
+never skipped:
 
 - **PEP 723 script metadata** at the top of every notebook file
   (`# /// script` … `# dependencies = ["marimo", …]` … `# ///`).

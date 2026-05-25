@@ -14,7 +14,7 @@ agent that understands the Skills convention — Claude Code, Codex, Cursor, and
 | ----- | ------------ |
 | 🏛️ [`improve-codebase-architecture`](skills/improve-codebase-architecture/) | Surface architectural friction and propose *deepening* refactors (shallow → deep modules), presented as a visual before/after HTML report, then a grilling loop to design the chosen refactor. |
 | 📚 [`consult-references`](skills/consult-references/) | Before non-trivial changes, read the actual paper or vendored repo in `references/` instead of guessing. Grounds algorithms and formulas in primary sources. |
-| 📥 [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/` using the highest-fidelity format available (HTML → ar5iv → LaTeX → PDF) and write a structured `NOTES.md`. |
+| 📥 [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/`: read the full text from alphaXiv markdown, ground the exact math and TikZ diagrams in the arXiv LaTeX source, and write a structured `NOTES.md`. |
 | 🧠 [`maintain-memory-md`](skills/maintain-memory-md/) | Keep per-directory `CLAUDE.md`/`AGENTS.md` files honest and in sync with the code, plus a root Progress log. Bootstraps them in projects that have none. |
 | 📋 [`pr-plan-tracking`](skills/pr-plan-tracking/) | Maintain lightweight per-PR plans, progress logs, and findings under `plans/`. Start a plan, log progress, record a finding, complete a PR. |
 | 🧪 [`marimo-notebook-tests`](skills/marimo-notebook-tests/) | Wire up a Python project so files are simultaneously marimo interactive notebooks and pytest test modules — executable docs that stay green in CI. |
@@ -47,10 +47,10 @@ The six skills aren't a grab-bag; they chain into one workflow. A typical run fr
 "here's a paper" to "the refactor is merged and remembered" looks like this:
 
 1. **📥 Ingest the papers.** Point [`read-arxiv-paper`](skills/read-arxiv-paper/)
-   at an arXiv ID or URL. It fetches the highest-fidelity format available
-   (arXiv HTML → ar5iv → LaTeX → PDF), unpacks it into `references/papers/<slug>/`,
-   and writes a structured `NOTES.md` you'll actually re-read — equations copied
-   *verbatim*, not paraphrased.
+   at an arXiv ID or URL. It reads the full text from alphaXiv markdown and grounds
+   the exact mathematics and TikZ diagrams in the arXiv LaTeX source, unpacks them
+   into `references/papers/<slug>/`, and writes a structured `NOTES.md` you'll
+   actually re-read — equations copied *verbatim* from the source, not paraphrased.
 
 2. **📚 Read the papers — and the implementation.** Before any non-trivial change,
    [`consult-references`](skills/consult-references/) opens the relevant `NOTES.md`
