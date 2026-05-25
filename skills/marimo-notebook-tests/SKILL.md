@@ -10,6 +10,41 @@ marimo interactive notebooks and pytest test modules.
 
 Assumes `marimo` is installed as a dev dependency alongside `pytest`.
 
+## Follow marimo's notebook authoring guidelines
+
+This skill owns the *notebook-as-test wiring* — the `test_*` / `@app.cell`
+split below. It does **not** redefine how marimo cells are written. That is
+owned by marimo's official [`marimo-notebook`](https://github.com/marimo-team/skills/tree/main/skills/marimo-notebook)
+skill. Install it alongside this one and **always follow it** when writing the
+cell bodies:
+
+```bash
+npx skills add marimo-team/skills   # provides marimo-notebook, jupyter-to-marimo, et al.
+```
+
+Load `marimo-notebook` and apply its rules verbatim. The load-bearing ones,
+repeated here so they are never skipped:
+
+- **PEP 723 script metadata** at the top of every notebook file
+  (`# /// script` … `# dependencies = ["marimo", …]` … `# ///`).
+- **Variables between cells define the reactivity** — let marimo order cells
+  from their parameters; don't wrap cell bodies in needless `if`/`try`.
+- **Never mutate an object across cells** — create a new object instead, so
+  the dependency graph stays correct.
+- **Always create UI elements; only vary the *data source* by mode** via
+  `mo.app_meta().mode == "script"` (synthetic/default data in script mode,
+  widget values interactively). Don't conditionally hide widgets.
+- **Render equations** with `mo.md(r"""$...$""")` so the notebook mirrors the
+  paper's notation.
+- **Don't over-prefix variables with underscores** — reserve `_` for a
+  cell-local throwaway or two, not as a habit.
+- **Run `marimo check <notebook.py>`** before committing to catch the common
+  mistakes automatically.
+
+When marimo's guidance and the wiring below ever disagree, marimo wins on cell
+style; this skill only dictates the `test_*` / cell split and the execution
+modes.
+
 ## The pattern
 
 Every notebook file has three layers:
