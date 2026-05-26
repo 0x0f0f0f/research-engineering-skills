@@ -14,10 +14,32 @@ agent that understands the Skills convention — Claude Code, Codex, Cursor, and
 | ----- | ------------ |
 | 🏛️ [`improve-codebase-architecture`](skills/improve-codebase-architecture/) | Surface architectural friction and propose *deepening* refactors (shallow → deep modules), presented as a visual before/after HTML report, then a grilling loop to design the chosen refactor. |
 | 📚 [`consult-references`](skills/consult-references/) | Before non-trivial changes, read the actual paper or vendored repo in `references/` instead of guessing. Grounds algorithms and formulas in primary sources. |
-| 📥 [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/` using the highest-fidelity format available (HTML → ar5iv → LaTeX → PDF) and write a structured `NOTES.md`. |
+| 📥 [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/`: read the full text from alphaXiv markdown, copy exact equations from ar5iv/arXiv-HTML MathML, pull TikZ diagram code from the LaTeX source, and write a structured `NOTES.md`. |
 | 🧠 [`maintain-memory-md`](skills/maintain-memory-md/) | Keep per-directory `CLAUDE.md`/`AGENTS.md` files honest and in sync with the code, plus a root Progress log. Bootstraps them in projects that have none. |
 | 📋 [`pr-plan-tracking`](skills/pr-plan-tracking/) | Maintain lightweight per-PR plans, progress logs, and findings under `plans/`. Start a plan, log progress, record a finding, complete a PR. |
 | 🧪 [`marimo-notebook-tests`](skills/marimo-notebook-tests/) | Wire up a Python project so files are simultaneously marimo interactive notebooks and pytest test modules — executable docs that stay green in CI. |
+
+## 🟢 Bundled marimo skills
+
+This plugin **vendors [`marimo-team/skills`](https://github.com/marimo-team/skills)**
+directly under [`vendor/marimo-team-skills/`](vendor/marimo-team-skills/) — the
+files are committed into this repo (**not** a git submodule), so they always come
+along on a plain `git clone`, the Claude Code marketplace install, and
+`npx skills`. We deliberately avoided a submodule: the marketplace installer does
+not initialize submodules
+([claude-code#17293](https://github.com/anthropics/claude-code/issues/17293)),
+which would leave the `vendor/` paths empty. Each skill is listed in
+`marketplace.json`, so installing this plugin also gives you marimo's own
+skills — `marimo-notebook` (the canonical notebook-authoring rules that
+`marimo-notebook-tests` defers to), `implement-paper`, `implement-paper-auto`,
+`auto-paper-demo`, `jupyter-to-marimo`, `streamlit-to-marimo`, `anywidget`,
+`wasm-compatibility`, `add-molab-badge`, and `marimo-batch`.
+
+The vendored copy is a **snapshot of upstream**; to re-sync, shallow-reclone and
+overwrite the directory — see [`CLAUDE.md`](CLAUDE.md) for the exact steps. These
+skills are © the marimo team under **Apache-2.0** — see
+[`vendor/marimo-team-skills/LICENSE`](vendor/marimo-team-skills/LICENSE); this
+repo's own skills remain MIT.
 
 ## 🔁 How to use them — the loop
 
@@ -25,10 +47,11 @@ The six skills aren't a grab-bag; they chain into one workflow. A typical run fr
 "here's a paper" to "the refactor is merged and remembered" looks like this:
 
 1. **📥 Ingest the papers.** Point [`read-arxiv-paper`](skills/read-arxiv-paper/)
-   at an arXiv ID or URL. It fetches the highest-fidelity format available
-   (arXiv HTML → ar5iv → LaTeX → PDF), unpacks it into `references/papers/<slug>/`,
-   and writes a structured `NOTES.md` you'll actually re-read — equations copied
-   *verbatim*, not paraphrased.
+   at an arXiv ID or URL. It reads the full text from alphaXiv markdown, copies
+   exact equations from ar5iv/arXiv-HTML MathML, and pulls TikZ diagram code from
+   the arXiv LaTeX source, unpacks them into `references/papers/<slug>/`, and writes
+   a structured `NOTES.md` you'll actually re-read — equations copied *verbatim*,
+   not paraphrased.
 
 2. **📚 Read the papers — and the implementation.** Before any non-trivial change,
    [`consult-references`](skills/consult-references/) opens the relevant `NOTES.md`
@@ -105,8 +128,9 @@ marketplace out of the box. From inside Claude Code:
 ```
 
 The first command registers the marketplace; the second installs the
-`research-engineering-skills` plugin (all six skills). Run `/plugin` to manage
-installed plugins.
+`research-engineering-skills` plugin (the six authored skills plus the bundled
+marimo skills, which are vendored directly so they install without any extra
+steps). Run `/plugin` to manage installed plugins.
 
 ### Option B — `npx skills` (Vercel Labs)
 
@@ -164,6 +188,9 @@ research-engineering-skills/
 │   ├── maintain-memory-md/SKILL.md
 │   ├── pr-plan-tracking/SKILL.md
 │   └── marimo-notebook-tests/SKILL.md
+├── vendor/
+│   └── marimo-team-skills/         # vendored copy of marimo-team/skills (Apache-2.0, not a submodule)
+│       └── skills/                 # marimo-notebook, implement-paper, jupyter-to-marimo, …
 ├── README.md
 └── LICENSE
 ```
