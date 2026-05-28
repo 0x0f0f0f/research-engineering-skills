@@ -51,7 +51,12 @@ The six skills aren't a grab-bag; they chain into one workflow. A typical run fr
    exact equations from ar5iv/arXiv-HTML MathML, and pulls TikZ diagram code from
    the arXiv LaTeX source, unpacks them into `references/papers/<slug>/`, and writes
    a structured `NOTES.md` you'll actually re-read — equations copied *verbatim*,
-   not paraphrased.
+   not paraphrased. Each `NOTES.md` opens with a **YAML front-matter block** (the
+   formal reference-metadata schema: a `<surname>-<year>-<slug>` citation key,
+   authors, year, title, a short summary, and a DOI/arXiv/source link), so
+   `references/INDEX.md` is a catalog rendered from those blocks and every citation
+   carries author + year + title — enough for a model to recognize the work without
+   following the link.
 
 2. **📚 Read the papers — and the implementation.** Before any non-trivial change,
    [`consult-references`](skills/consult-references/) opens the relevant `NOTES.md`

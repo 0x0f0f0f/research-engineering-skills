@@ -13,15 +13,28 @@ The convention assumes a project layout like:
 
 ```
 references/
-  INDEX.md           # one-line "what's here and when to consult it"
+  INDEX.md           # catalog rendered from each reference's front-matter
   repos/
     <name>/          # git submodule or shallow clone, read-only
+      AGENTS.md      # overlay: YAML front-matter + entry points + when-to-consult
   papers/
     <slug>/
       NOTES.md       # human-readable summary (the primary thing you read)
-      main.tex       # or paper.pdf — the source of truth for equations
+      main.tex       # or paper.pdf / paper.html — source of truth for equations
+      SOURCE.md      # provenance + equation fidelity
       arxiv-id.txt
+  web/
+    <slug>/
+      NOTES.md       # summary of a blog post / web page
+      SOURCE.md
 ```
+
+Every reference's primary markdown file (`NOTES.md`, or `AGENTS.md` for repos)
+opens with a **YAML front-matter block** carrying the formal metadata schema:
+`type`, a `key` citation handle in `<surname>-<year>-<slug>` form, `title`,
+`authors`, `year`, a short `summary`, a `consult_for` line, and at least one link
+(`arxiv` / `doi` / `url`). The `read-arxiv-paper` skill documents the full schema
+and writes it for new papers; INDEX.md is a catalog rendered from these blocks.
 
 If the project doesn't have this layout yet, use Mode B to set it up.
 
@@ -60,15 +73,18 @@ Match the task to entries in INDEX.md. Be generous — it's cheaper to check one
 
 ### 4. Ground the work
 
-When you write the code or design:
-- For formulas: quote the LaTeX block in a comment above the implementation, with the paper slug and section reference. Example:
+When you write the code or design, cite with **author + year + title** (and the
+citation `key` / path), never a bare path or bare arXiv id — the author/year/title
+is what lets a reader recognize the source without opening it:
+- For formulas: quote the LaTeX block in a comment above the implementation, with
+  the citation and section reference. Example:
   ```python
   # Deflated Sharpe Ratio — Bailey & López de Prado 2014, eq. 9
-  # See references/papers/deflated-sharpe/NOTES.md
+  # [bailey-2014-deflated-sharpe] See references/papers/deflated-sharpe/NOTES.md
   # $$ \hat{SR} = \frac{(SR - SR_0)\sqrt{N-1}}{\sqrt{1 - \gamma_3 SR + \frac{\gamma_4 - 1}{4} SR^2}} $$
   ```
-- For algorithms: cite the paper slug + section/figure in a comment.
-- For APIs imitated from a vendored repo: cite the source file in a comment.
+- For algorithms: cite `Author et al. YEAR, "Title"` + section/figure, plus the key.
+- For APIs imitated from a vendored repo: cite the source file + the repo key.
 
 ### 5. If something contradicts your prior
 
@@ -87,21 +103,28 @@ When setting up a fresh references directory:
    mkdir -p references/repos references/papers
    ```
 
-2. Create `references/INDEX.md`:
+2. Create `references/INDEX.md` — a catalog whose entries are rendered from each
+   reference's YAML front-matter, citing author + year + title:
    ```markdown
    # References
 
-   Hand-curated index of repos and papers this project depends on.
-   Update whenever you add something.
+   Catalog of repos and papers this project depends on, rendered from each
+   reference's YAML front-matter. Update whenever you add something.
 
    ## Repos
 
-   - `repos/<name>/` — <one-line description>. Consult for: <when>.
-     Entry point: `<path within the repo>`.
+   - **[<key>]** <Authors> (<year>), *<title>* — `repos/<name>/`. <repo_url>.
+     Entry point: `<path>`. <summary> **Consult for:** <when>.
 
    ## Papers
 
-   - `papers/<slug>/` — <one-line description>. Consult for: <when>.
+   - **[<key>]** <Surname> et al. (<year>), *<title>* — `papers/<slug>/`.
+     [arXiv:<id>](https://arxiv.org/abs/<id>) · doi:<doi>. <summary> **Consult for:** <when>.
+
+   ## Web
+
+   - **[<key>]** <Author> (<year>), *<title>* — `web/<slug>/`. <url>.
+     <summary> **Consult for:** <when>.
    ```
 
 3. Create `references/README.md` with a short explanation of the convention (so anyone — human or agent — opening the project understands it).
