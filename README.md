@@ -15,7 +15,7 @@ agent that understands the Skills convention — Claude Code, Codex, Cursor, and
 | 🏛️ [`improve-codebase-architecture`](skills/improve-codebase-architecture/) | Surface architectural friction and propose *deepening* refactors (shallow → deep modules), presented as a visual before/after HTML report, then a grilling loop to design the chosen refactor. |
 | 📚 [`consult-references`](skills/consult-references/) | Before non-trivial changes, read the actual paper or vendored repo in `references/` instead of guessing. Grounds algorithms and formulas in primary sources. |
 | 📥 [`read-arxiv-paper`](skills/read-arxiv-paper/) | Ingest an arXiv paper into `references/papers/<slug>/`: read the full text from alphaXiv markdown, copy exact equations from ar5iv/arXiv-HTML MathML, pull TikZ diagram code from the LaTeX source, and write a structured `NOTES.md`. |
-| 🧠 [`maintain-memory-md`](skills/maintain-memory-md/) | Keep per-directory `CLAUDE.md`/`AGENTS.md` files honest and in sync with the code, plus a root Progress log. Bootstraps them in projects that have none. |
+| 🧠 [`maintain-memory-md`](skills/maintain-memory-md/) | Keep per-directory `CLAUDE.md`/`AGENTS.md` files honest and in sync with the code as a current-state description (session history lives in `plans/` via `pr-plan-tracking`, not in `CLAUDE.md`). Bootstraps them in projects that have none. |
 | 📋 [`pr-plan-tracking`](skills/pr-plan-tracking/) | Maintain lightweight per-PR plans, progress logs, and findings under `plans/`. Start a plan, log progress, record a finding, complete a PR. |
 | 🧪 [`marimo-notebook-tests`](skills/marimo-notebook-tests/) | Wire up a Python project so files are simultaneously marimo interactive notebooks and pytest test modules — executable docs that stay green in CI. |
 
@@ -76,9 +76,9 @@ The six skills aren't a grab-bag; they chain into one workflow. A typical run fr
    pytest modules, so the docs stay green in CI.
 
 6. **🧠 Record what you learned.** [`maintain-memory-md`](skills/maintain-memory-md/)
-   keeps per-directory `CLAUDE.md`/`AGENTS.md` honest and appends a one-line Progress
-   entry; `pr-plan-tracking` logs the load-bearing findings. The next session — human or
-   agent — gets back up to speed in 20 seconds.
+   keeps per-directory `CLAUDE.md`/`AGENTS.md` honest as a current-state description;
+   `pr-plan-tracking` logs the session progress and load-bearing findings under `plans/`.
+   The next session — human or agent — gets back up to speed in 20 seconds.
 
 > **A concrete run:** ingest the *Deflated Sharpe Ratio* paper → consult it before
 > touching walk-forward scoring → notice the scoring module is *shallow* (a thin

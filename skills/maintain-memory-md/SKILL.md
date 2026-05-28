@@ -1,6 +1,6 @@
 ---
 name: maintain-memory-md
-description: Keep per-directory CLAUDE.md (or AGENTS.md) files accurate and in sync with the code, and keep a Progress log in the root CLAUDE.md. Trigger after finishing a task that created, deleted, moved, or non-trivially changed files; when the user says "update CLAUDE.md", "log progress", "sync memory", "wrap up"; or at the end of a coding session before the user moves on. Also use to bootstrap CLAUDE.md files in a project that doesn't have them yet.
+description: Keep per-directory CLAUDE.md (or AGENTS.md) files accurate and in sync with the code as a CURRENT-STATE description (not a changelog). Trigger after finishing a task that created, deleted, moved, or non-trivially changed files; when the user says "update CLAUDE.md", "sync memory", "wrap up"; or at the end of a coding session before the user moves on. Also use to bootstrap CLAUDE.md files in a project that doesn't have them yet. Session history/progress goes in the progress log (e.g. plans/PROGRESS.md via pr-plan-tracking) and git, NOT in CLAUDE.md.
 ---
 
 # Maintain CLAUDE.md files
@@ -9,7 +9,7 @@ description: Keep per-directory CLAUDE.md (or AGENTS.md) files accurate and in s
 
 CLAUDE.md files in each directory are how project knowledge persists across sessions. They go stale fast if nobody updates them. This skill is the protocol for keeping them honest, lean, and useful — and for setting them up from scratch in a project that doesn't have them.
 
-The root CLAUDE.md also tracks a project Progress log so any new session can read "what's happened recently" in 20 seconds.
+**CLAUDE.md describes the CURRENT STATE, not the history.** It is orientation an agent reads to know how the system works *right now* — not a changelog. Do NOT accumulate commit-level entries, LOC deltas, benchmark numbers, "shipped X then Y" narratives, or dated achievement logs in it. That archaeology bloats the system prompt every session without changing what the agent should do next. Session history goes in the **progress log** (`plans/PROGRESS.md` via the `pr-plan-tracking` skill, or the project's equivalent) and in `git log`; durable discoveries go in `plans/FINDINGS.md`. When you update CLAUDE.md, you EDIT the current-state description in place and DELETE what's no longer true — you don't append.
 
 ## When to trigger
 
@@ -52,12 +52,8 @@ Run through this checklist:
    - Public API or entry points — changed?
      If yes to any: update that section. Keep edits minimal and surgical — do NOT rewrite the whole file.
 3. **If a touched directory has no CLAUDE.md** and now meets the "warrants one" bar from Mode A, create one.
-4. **Update the root CLAUDE.md Progress log** with a one-line entry:
-   ```
-   - YYYY-MM-DD — <terse summary of what changed, why>
-   ```
-   Use today's date. One line. No marketing language.
-5. **Length check.** If any CLAUDE.md is now >400 lines, prune. Move old Progress entries (>30 days) into a `PROGRESS.md` file at the same level. Move detailed architecture into `docs/` and reference it from CLAUDE.md.
+4. **Log the session to the progress log, NOT to CLAUDE.md.** Session-by-session "what changed" goes in `plans/PROGRESS.md` (use the `pr-plan-tracking` skill) or the project's progress log — never as an appended changelog inside CLAUDE.md. If CLAUDE.md has a `## Plans & Progress` section, it should be a short *pointer* to the log, not the log itself.
+5. **Length / archaeology check.** CLAUDE.md is current-state orientation. If it has grown a changelog ("shipped X", "−124 LOC", dated achievement bullets, benchmark numbers), that's a smell — DELETE it (the history is in git + the progress log). Also prune to keep each file lean (aim <300–400 lines); move detailed architecture into `docs/` and reference it.
 6. **Report** the diff: which files you edited, one line each. Don't dump full contents back at the user.
 
 ## Root CLAUDE.md template
@@ -86,17 +82,18 @@ CLAUDE.md files. Example:>
 
 ## Maintenance protocol
 
-When finishing a task:
+This file is current-state orientation, not a changelog. When finishing a task:
+edit the sections above so they describe how the system works NOW, and delete
+what's no longer true. Do NOT append dated entries here — session history goes in
+`plans/PROGRESS.md` (the `pr-plan-tracking` skill), findings in `plans/FINDINGS.md`,
+commit detail in `git log`.
 
-1. If a directory's CLAUDE.md is now stale, update it (use the maintain-memory-md skill).
-2. Append a one-line entry below.
-3. Keep each CLAUDE.md under 400 lines. Prune old entries to PROGRESS.md.
+## Plans & Progress
 
-## Progress
-
-- YYYY-MM-DD — <recent entry>
-- YYYY-MM-DD — <older entry>
-- ...
+History lives in `plans/` and git, not here:
+- `plans/PROGRESS.md` — append-only session log.
+- `plans/FINDINGS.md` — durable discoveries / decisions.
+- `plans/<slug>.md` — active PR plans; `plans/completed/` — merged.
 
 ## References
 
@@ -130,13 +127,10 @@ What other parts of the project import from here. What's stable vs. internal.
 ## Conventions specific to this directory
 
 <Optional. Only if they differ from project-wide.>
-
-## Recent changes
-
-- YYYY-MM-DD — <change>
-
-(Keep last 5–10 entries. Older ones can be pruned.)
 ```
+
+(No "Recent changes" / changelog section in per-directory files either — describe
+the current state and let `git log <dir>` carry the history.)
 
 ## Rules of thumb
 
@@ -148,6 +142,7 @@ What other parts of the project import from here. What's stable vs. internal.
 
 ## What NOT to put in CLAUDE.md
 
+- **Changelogs / session history / achievement logs** — dated "shipped X" bullets, LOC deltas, commit-level granularity, test counts, benchmark numbers. This is the most common bloat. It's archaeology loaded as orientation every session and it changes nothing about what the agent does next. → `git log`, `plans/PROGRESS.md`, `plans/FINDINGS.md`, `bench/results/`.
 - Long code examples (link to the file instead)
 - General programming advice (Claude already knows)
 - Personality instructions ("be helpful, be concise") — that's `~/.claude/CLAUDE.md` territory
@@ -159,5 +154,5 @@ What other parts of the project import from here. What's stable vs. internal.
 End your reply with:
 
 - The list of CLAUDE.md files you created or edited (paths only)
-- The Progress entry you added to the root
+- Where you logged the session (the progress log — NOT CLAUDE.md)
 - Anything you flagged as `TODO: confirm with user`

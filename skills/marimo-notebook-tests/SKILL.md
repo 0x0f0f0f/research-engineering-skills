@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
 ```toml
 [project.optional-dependencies]
-test = ["pytest>=7", "marimo>=0.9", "discopy>=1.0"]   # marimo is a dev dep
+test = ["pytest>=7", "marimo>=0.9"]   # marimo is a dev dep; add your package(s) under test
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]          # default: fast unit tests only
@@ -116,8 +116,7 @@ testpaths = ["tests"]          # default: fast unit tests only
 
 ## Where to put them
 
-- `tests/tutorials/` — preferred for a maths/PL library. Sits inside the
-  existing test tree alongside unit tests, directly mirroring the
-  `test/tutorials/` convention in JuliaSymbolics/Metatheory.jl. Since pytest
-  recurses into `tests/`, no extra `testpaths` config is needed.
+- `tests/tutorials/` — preferred when the notebooks are tutorial-style tests
+  for a library. Sits inside the existing test tree alongside unit tests; since
+  pytest recurses into `tests/`, no extra `testpaths` config is needed.
 - `notebooks/` — alternative if docs-primary identity is preferred.
