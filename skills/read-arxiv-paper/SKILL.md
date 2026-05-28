@@ -81,9 +81,14 @@ curl -L -sS -o paper.html "https://arxiv.org/html/<id>"             # arXiv's ow
 curl -L -sS -o paper.html "https://ar5iv.labs.arxiv.org/html/<id>"  # older corpus
 ```
 
-Check it actually rendered: file >10KB, contains `<math`, and does **not**
-contain "No HTML for this paper". For each equation you cite, copy the LaTeX from
-its `alttext` attribute (or the MathML block) — this is exact, not extracted.
+Check it actually rendered — arXiv can return HTTP 200 with an abstract/landing
+or error page instead of the rendered paper. Treat it as real only if: file >10KB,
+contains `<math` (or `MathJax`), shows the **paper body** (real sections, not just
+the abstract/metadata stub), and does **not** contain "No HTML for this paper". If
+what you got is an abstract/fallback page, do **not** record it as the exact-math
+source in `SOURCE.md` — drop to Layer 3 instead. For each equation you cite, copy
+the LaTeX from its `alttext` attribute (or the MathML block) — this is exact, not
+extracted.
 
 What this layer does **not** reliably give you: **TikZ diagram source.** LaTeXML
 renders TikZ to SVG when it can, and `tikz-cd`/string-diagram coverage is partial,
