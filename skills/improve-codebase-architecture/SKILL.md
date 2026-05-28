@@ -44,6 +44,19 @@ Then use the Agent tool with `subagent_type=Explore` to walk the codebase. Don't
 
 Apply the **deletion test** to anything you suspect is shallow: would deleting it concentrate complexity, or just move it? A "yes, concentrates" is the signal you want.
 
+**Ground the "untested" and dead-code judgements in a coverage run** — don't eyeball it. If the project ships `pytest-cov`, run it with branch coverage (exclude benchmark/slow tests so the run stays fast):
+
+```bash
+uv run pytest --cov --cov-report=term-missing
+```
+
+Read the report two ways:
+
+- **Never-executed lines / files at 0%** are dead-code candidates. They sharpen the deletion test: code no test (and often no caller) reaches is the clearest "delete it and nothing breaks" signal — confirm there's no live caller before flagging.
+- **Uncovered branches** (with `branch = true` enabled) are untested paths. A deep module with low branch coverage hides behaviour its small interface promises; that's a deepening candidate where new tests should land. A *shallow* module that's nonetheless hard to cover is a seam problem — note it.
+
+Cite the concrete numbers (file, line ranges, branch %) in each candidate card so the recommendation is evidence-backed, not a hunch.
+
 ### 2. Present candidates as an HTML report
 
 Write a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user — `xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows — and tell them the absolute path.
