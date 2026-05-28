@@ -14,13 +14,13 @@ Assumes `marimo` is installed as a dev dependency alongside `pytest`.
 
 This skill owns the *notebook-as-test wiring* — the `test_*` / `@app.cell`
 split below. It does **not** redefine how marimo cells are written. That is
-owned by marimo's official `marimo-notebook` skill, which is **already vendored
-into this plugin** at
-[`vendor/marimo-team-skills/skills/marimo-notebook/`](../../vendor/marimo-team-skills/skills/marimo-notebook/)
-and installed alongside this one. **Do not run `npx skills add marimo-team/skills`
-to reinstall it** — it ships with this plugin; reinstalling would duplicate it.
-Load the bundled `marimo-notebook` skill and **always follow it** when writing
-the cell bodies.
+owned by marimo's official `marimo-notebook` skill. **Load that skill by name and
+always follow it** when writing the cell bodies — it installs alongside this one
+(bundled in the `research-engineering-skills` plugin; fetched as a sibling skill
+by `npx skills`). Canonical upstream:
+[`marimo-team/skills`](https://github.com/marimo-team/skills). **Do not run `npx
+skills add marimo-team/skills` to reinstall it** — it already ships alongside
+this skill.
 
 Apply its rules verbatim. The load-bearing ones, repeated here so they are
 never skipped:
