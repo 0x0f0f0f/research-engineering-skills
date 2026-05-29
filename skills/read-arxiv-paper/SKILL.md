@@ -148,13 +148,32 @@ Parse the bare ID from whatever the user provides:
 
 Default to the latest version unless the user pinned one (the endpoints accept versioned IDs).
 
-### 2. Pick a slug
+### 2. Pick a slug and a citation key
 
-Short, kebab-case, descriptive. Examples: `interacting-hopf`, `gepa`, `deflated-sharpe`.
+**Slug** — the directory name. Short, kebab-case, descriptive. Examples:
+`interacting-hopf`, `gepa`, `deflated-sharpe`.
 
 - If the user suggested one, use it.
 - Otherwise propose one from the title or known shorthand; confirm if ambiguous.
 - If `references/papers/<slug>/` exists, suffix `-v2`, `-2024`, etc., or ask.
+
+**Citation key** — the stable handle written into prose, code comments, and the
+YAML front-matter `key:` field. Format **`<first-author-surname>-<year>-<title-slug>`**,
+kebab-case, ASCII-folded:
+
+- First author surname only, lowercased, accents stripped (Sobociński → `sobocinski`,
+  Van der Cruysse → `vandercruysse`).
+- `<year>` is the 4-digit publication year.
+- `<title-slug>` is a short descriptive slug — reuse the directory slug unless it
+  collides with another paper by the same author/year (then disambiguate with a
+  suffix `-i`, `-ii`, or a distinguishing word).
+- Examples: `zhang-2022-relational-e-matching`, `tiurin-2024-e-hypergraphs`,
+  `bonchi-2022-string-diagrams-i`.
+
+The point of the key is that a language model recognizes `Zhang et al. 2022,
+"Relational E-Matching"` and triggers its trained knowledge **without following
+the link**. Carry the author + year + title in every citation for exactly that
+reason — never a bare path or bare arXiv id.
 
 ### 3. Fetch metadata
 
@@ -220,10 +239,33 @@ Move the fetched files in (`alphaxiv.md`, `overview.md`, `src/`, `paper.html`, `
 
 Target 100–250 lines. The primary artifact future sessions read.
 
+**NOTES.md opens with a well-formed YAML front-matter block** — the formal
+reference metadata schema (see "## Reference metadata schema" below). This block
+is the single source of truth: `references/INDEX.md` is rendered from it, and the
+`summary`/link fields let a session decide whether to open the paper at all.
+
 ````markdown
+---
+type: paper
+key: <surname-year-slug>
+title: "<Full paper title>"
+authors: [<Surname>, <Surname>, ...]   # surnames in author order
+year: <YYYY>
+venue: "<e.g. POPL 2022>"              # omit if unknown
+arxiv: "<id>"                           # bare id, no URL
+doi: "<10.xxxx/...>"                    # omit if none
+url: "https://arxiv.org/abs/<id>"
+slug: <dir-slug>
+summary: >
+  1–3 sentence abstract. What problem, what method, what result.
+  This is the super-short summary the index shows; keep it tight.
+consult_for: >
+  One sentence: when to re-read this in THIS project.
+---
+
 # <Paper title>
 
-**arXiv:** <id> · **Authors:** <first author et al., year> · **Source:** see SOURCE.md
+**Cite as:** <Surname> et al. (<year>), *<short title>* · **arXiv:** [<id>](https://arxiv.org/abs/<id>) · **Source:** see `SOURCE.md`
 
 ## TL;DR
 
@@ -276,13 +318,18 @@ Other cited papers worth reading. Titles + arXiv IDs.
 
 ### 9. Update references/INDEX.md
 
-If it exists, append/update under `## Papers`:
+INDEX.md is a catalog **rendered from the front-matter** of each reference. Append
+or update one entry under `## Papers`, in this fixed shape so every entry is
+parallel and cites author + year + title:
 
 ```
-- `papers/<slug>/` — <one-line description>. Consult for: <when>.
+- **[<key>]** <Surname> et al. (<year>), *<title>* — `papers/<slug>/`.
+  [arXiv:<id>](https://arxiv.org/abs/<id>) · doi:<doi>.
+  <summary, one line>. **Consult for:** <when>.
 ```
 
-Otherwise create a minimal one with `## Repos` and `## Papers` sections.
+Use the same `<key>` and link that you wrote into the front-matter. Otherwise
+create a minimal INDEX with `## Repos`, `## Papers`, and `## Web` sections.
 
 ### 10. Report back
 
@@ -290,6 +337,91 @@ Otherwise create a minimal one with `## Repos` and `## Papers` sections.
 - **Which layers you obtained** (alphaXiv full text? LaTeX source? PDF-only?) and what that means for equation fidelity.
 - One-sentence TL;DR.
 - Suggest the user review `NOTES.md` and correct any mischaracterization.
+
+## Reference metadata schema
+
+Every reference in `references/` — paper, repo, or web page — carries a YAML
+front-matter block at the top of its primary markdown file (`NOTES.md` for
+papers and web pages, `AGENTS.md` for vendored repos). This is the formal,
+machine-readable schema; `references/INDEX.md` is a view rendered from it.
+
+**Shared fields (all types):**
+
+| field | required | notes |
+|-------|----------|-------|
+| `type` | yes | `paper` \| `repo` \| `web` |
+| `key` | yes | `<surname>-<year>-<slug>` citation handle (see step 2) |
+| `title` | yes | full title, quoted |
+| `authors` | yes | list of surnames in author order (`author` string ok for one) |
+| `year` | yes | publication year (`YYYY`); omit only for undated tools |
+| `summary` | yes | 1–3 sentence abstract (block scalar `>`) |
+| `consult_for` | recommended | one line: when to re-read in this project |
+| link | yes | **at least one** of `arxiv`, `doi`, `url` |
+
+**Paper** (`papers/<slug>/NOTES.md`): adds `arxiv` (bare id), `doi`, `venue`,
+`slug`, `url`.
+
+**Repo** (`repos/<name>/AGENTS.md`): `type: repo`, plus `name`, `repo_url`
+(upstream), `entry_points` (list of paths to start from), `vendored: true`, and
+`paper:` (the citation key of the originating paper, if one exists). Key a repo
+to its paper's author+year where there is one (`willsey-2021-egg`); for pure
+tools with no canonical paper, key by name (`polars`, `discopy`).
+
+```yaml
+---
+type: repo
+key: willsey-2021-egg
+name: egg
+title: "egg: Fast and Extensible Equality Saturation"
+authors: [Willsey, Nandi, Wang, Flatt, Tatlock, Panchekha]
+year: 2021
+repo_url: "https://github.com/egraphs-good/egg"
+arxiv: "2004.03082"
+paper: willsey-2021-egg
+entry_points: ["src/egraph.rs", "src/run.rs", "src/explain.rs"]
+vendored: true
+summary: >
+  Rust e-graph + equality-saturation library; the classic match→merge→rebuild loop.
+consult_for: >
+  Classic EqSat loop, rebuild, explain (spanning-tree LCA), test ports.
+---
+```
+
+**Web** (`web/<slug>/NOTES.md`): `type: web`, plus `url`, `fetched` (YYYY-MM-DD),
+`slug`.
+
+```yaml
+---
+type: web
+key: flatt-2022-egraph-intersection
+title: "Limitations of E-Graph Intersection"
+authors: [Flatt]
+year: 2022
+url: "https://www.oflatt.com/egraph-union-intersect.html"
+fetched: "2026-05-25"
+slug: oflatt-egraph-union-intersect
+summary: >
+  E-graph union is O(n log n); intersection of the full congruence closure is not
+  finitely representable in general, only approximable over a chosen term set.
+consult_for: >
+  Composing/merging e-graphs, e-hypergraph intersection, proof-certificate meets.
+---
+```
+
+**Citing a reference elsewhere** (prose, plans, code comments): always carry
+author + year + title so a reader (human or model) recognizes the source without
+following the link. Canonical forms:
+
+- prose: `Zhang et al. (2022), "Relational E-Matching"` — append `[key]` and/or
+  the path when it aids navigation.
+- code comment:
+  ```python
+  # Relational E-Matching — Zhang et al. 2022 [zhang-2022-relational-e-matching]
+  # See references/papers/relational-e-matching/NOTES.md
+  ```
+
+Never cite with a bare path (`references/papers/foo/`) or bare id (`arXiv 2108.02290`)
+alone — those don't trigger a model's latent knowledge of the paper.
 
 ## Constraints
 
